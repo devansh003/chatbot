@@ -22,6 +22,15 @@ class AIChatbot_Admin {
             'dashicons-format-chat',
             30
         );
+
+        add_submenu_page(
+            'ai-chatbot',
+            'AI Chatbot Logs',
+            'View Logs',
+            'manage_options',
+            'aichat-logs',
+            array($this, 'view_logs_page')
+        );
     }
     
     public function register_settings() {
@@ -216,5 +225,23 @@ class AIChatbot_Admin {
         } else {
             wp_send_json_error($result['message']);
         }
+    }
+
+    public function view_logs_page() {
+        $log_file = WP_CONTENT_DIR . '/debug-indexing.log';
+        echo '<div class="wrap"><h1>AI Chatbot Indexing Logs</h1>';
+    
+        if (file_exists($log_file)) {
+            echo '<pre style="background:#111;color:#0f0;padding:15px;max-height:600px;overflow:auto;font-size:13px;line-height:1.4;">';
+            $lines = file($log_file);
+            $last_100 = array_slice($lines, -100); // show last 100 lines
+            echo esc_html(implode('', $last_100));
+            echo '</pre>';
+            echo '<p><a href="' . esc_url(add_query_arg('refresh', '1')) . '" class="button">Refresh Logs</a></p>';
+        } else {
+            echo '<p><strong>No log file found.</strong><br>Run indexing once to generate it.</p>';
+        }
+    
+        echo '</div>';
     }
 }
